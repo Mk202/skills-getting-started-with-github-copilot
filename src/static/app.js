@@ -25,7 +25,47 @@ document.addEventListener("DOMContentLoaded", () => {
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+          <div class="participants-section">
+            <strong>Participants:</strong>
+            ${details.participants.length > 0 ? `
+              <ul class="participants-list">
+                ${details.participants.map(email => `
+                  <li class="participant-item">
+                    <span class="participant-email">${email}</span>
+                    <button class="delete-participant" title="Remove participant" data-activity="${name}" data-email="${email}">
+                      <span class="delete-icon">&#128465;</span>
+                    </button>
+                  </li>
+                `).join('')}
+              </ul>
+            ` : '<p class="no-participants">No participants yet.</p>'}
+          </div>
         `;
+
+        // Add event listeners for delete buttons
+        setTimeout(() => {
+          activityCard.querySelectorAll(".delete-participant").forEach(btn => {
+            btn.addEventListener("click", async (e) => {
+              const activityName = btn.getAttribute("data-activity");
+              const email = btn.getAttribute("data-email");
+              try {
+                const response = await fetch(
+                  `/activities/${encodeURIComponent(activityName)}/unregister?email=${encodeURIComponent(email)}`,
+                  { method: "DELETE" }
+                );
+                const result = await response.json();
+                if (response.ok) {
+                  fetchActivities();
+                  showMessage(`Unregistered ${email} from ${activityName}`, "success");
+                } else {
+                  showMessage(result.detail || "Failed to unregister participant.", "error");
+                }
+              } catch (error) {
+                showMessage("Failed to unregister participant.", "error");
+              }
+            });
+          });
+        }, 0);
 
         activitiesList.appendChild(activityCard);
 
@@ -62,6 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        fetchActivities(); // Refresh activities list
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
