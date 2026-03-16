@@ -1,16 +1,9 @@
 import copy
-import os
-import sys
-from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
-# Ensure src can be imported both from pytest and direct python execution
-repo_root = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(repo_root / "src"))
-
-from app import activities, app
+from src.app import activities, app
 
 
 @pytest.fixture(autouse=True)
