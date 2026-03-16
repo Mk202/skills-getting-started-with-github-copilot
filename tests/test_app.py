@@ -50,7 +50,7 @@ def test_signup_for_activity_adds_participant():
     assert response.status_code == 200
     result = response.json()
     assert result["message"] == f"Signed up {email} for {activity_name}"
-    assert email in activities[activity_name]["participants"]
+    assert email in activities[activity_name]["participants"] 
 
 
 def test_signup_for_unknown_activity_returns_404():
